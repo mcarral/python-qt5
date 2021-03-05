@@ -23,6 +23,17 @@ dirname = os.path.dirname(__file__)
 sys.path.insert(0, dirname)
 os.environ["PATH"] += os.pathsep + dirname
 
+# Addresses error: "QtQuick" is not installed
+os.environ['QML2_IMPORT_PATH'] = os.path.join(dirname, 'qml')
+
+# Addresses error: Problem creating accessible interface
+os.environ['QT_PLUGIN_PATH'] = os.path.join(dirname, 'plugins')
+
+# Addresses error: ..could not find or load the Qt platform plugin "windows"
+os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = os.path.join(dirname,
+                                                         'plugins',
+                                                         'platforms')
+
 # Expose versions
 version_info = (0, 3, 0)  # Version of this release
 version = "%s.%s.%s" % version_info
