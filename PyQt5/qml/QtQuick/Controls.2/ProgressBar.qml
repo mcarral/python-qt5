@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the Qt Quick Controls 2 module of the Qt Toolkit.
@@ -34,45 +34,34 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.6
-import QtQuick.Templates 2.0 as T
-import QtQuick.Controls 2.0
-import QtQuick.Controls.impl 2.0
+import QtQuick 2.12
+import QtQuick.Templates 2.12 as T
+import QtQuick.Controls 2.12
+import QtQuick.Controls.impl 2.12
 
 T.ProgressBar {
     id: control
 
-    implicitWidth: Math.max(background ? background.implicitWidth : 0,
-                            contentItem.implicitWidth + leftPadding + rightPadding)
-    implicitHeight: Math.max(background ? background.implicitHeight : 0,
-                             contentItem.implicitHeight + topPadding + bottomPadding)
+    implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
+                            implicitContentWidth + leftPadding + rightPadding)
+    implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
+                             implicitContentHeight + topPadding + bottomPadding)
 
-    //! [contentItem]
-    contentItem: ProgressStrip {
-        id: strip
+    contentItem: ProgressBarImpl {
         implicitHeight: 6
         implicitWidth: 116
         scale: control.mirrored ? -1 : 1
         progress: control.position
-        indeterminate: control.indeterminate
-
-        ProgressStripAnimator {
-            target: strip
-            running: control.visible && control.indeterminate
-        }
+        indeterminate: control.visible && control.indeterminate
+        color: control.palette.dark
     }
-    //! [contentItem]
 
-    //! [background]
     background: Rectangle {
         implicitWidth: 200
         implicitHeight: 6
-        x: control.leftPadding
-        y: control.topPadding + (control.availableHeight - height) / 2
-        width: control.availableWidth
+        y: (control.height - height) / 2
         height: 6
 
-        color: "#e4e4e4"
+        color: control.palette.midlight
     }
-    //! [background]
 }

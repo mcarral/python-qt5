@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the Qt Quick Controls 2 module of the Qt Toolkit.
@@ -34,17 +34,22 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.6
-import QtQuick.Templates 2.0 as T
-import QtQuick.Controls.Universal 2.0
+import QtQuick 2.12
+import QtQuick.Templates 2.12 as T
+import QtQuick.Controls.Universal 2.12
 
 T.Dial {
     id: control
 
-    implicitWidth: 100
-    implicitHeight: 100
+    implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
+                            implicitContentWidth + leftPadding + rightPadding) || 100 // ### remove 100 in Qt 6
+    implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
+                             implicitContentHeight + topPadding + bottomPadding) || 100 // ### remove 100 in Qt 6
 
     background: Rectangle {
+        implicitWidth: 100
+        implicitHeight: 100
+
         x: control.width / 2 - width / 2
         y: control.height / 2 - height / 2
         width: Math.max(64, Math.min(control.width, control.height))
@@ -56,15 +61,16 @@ T.Dial {
     }
 
     handle: Rectangle {
-        implicitWidth: 20
-        implicitHeight: 20
+        implicitWidth: 14
+        implicitHeight: 14
 
         x: background.x + background.width / 2 - handle.width / 2
         y: background.y + background.height / 2 - handle.height / 2
 
         radius: width / 2
         color: !control.enabled ? control.Universal.baseLowColor :
-                control.pressed ? control.Universal.baseMediumColor : control.Universal.baseMediumHighColor
+                control.pressed ? control.Universal.baseMediumColor :
+                control.hovered ? control.Universal.baseHighColor : control.Universal.baseMediumHighColor
 
         transform: [
             Translate {

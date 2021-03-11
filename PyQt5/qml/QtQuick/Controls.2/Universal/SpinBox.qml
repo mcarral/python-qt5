@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the Qt Quick Controls 2 module of the Qt Toolkit.
@@ -34,22 +34,23 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.6
-import QtQuick.Templates 2.0 as T
-import QtQuick.Controls.Universal 2.0
+import QtQuick 2.12
+import QtQuick.Templates 2.12 as T
+import QtQuick.Controls 2.12
+import QtQuick.Controls.impl 2.12
+import QtQuick.Controls.Universal 2.12
 
 T.SpinBox {
     id: control
 
-    implicitWidth: Math.max(background ? background.implicitWidth : 0,
+    implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             contentItem.implicitWidth + 16 +
-                            (up.indicator ? up.indicator.implicitWidth : 0) +
-                            (down.indicator ? down.indicator.implicitWidth : 0))
-    implicitHeight: Math.max(contentItem.implicitHeight + topPadding + bottomPadding,
-                             background ? background.implicitHeight : 0,
-                             up.indicator ? up.indicator.implicitHeight : 0,
-                             down.indicator ? down.indicator.implicitHeight : 0)
-    baselineOffset: contentItem.y + contentItem.baselineOffset
+                            up.implicitIndicatorWidth +
+                            down.implicitIndicatorWidth)
+    implicitHeight: Math.max(implicitContentHeight + topPadding + bottomPadding,
+                             implicitBackgroundHeight,
+                             up.implicitIndicatorHeight,
+                             down.implicitIndicatorHeight)
 
     // TextControlThemePadding + 2 (border)
     padding: 12
@@ -67,7 +68,7 @@ T.SpinBox {
     }
 
     contentItem: TextInput {
-        text: control.textFromValue(control.value, control.locale)
+        text: control.displayText
 
         font: control.font
         color: !enabled ? control.Universal.chromeDisabledLowColor :
@@ -79,7 +80,7 @@ T.SpinBox {
 
         readOnly: !control.editable
         validator: control.validator
-        inputMethodHints: Qt.ImhFormattedNumbersOnly
+        inputMethodHints: control.inputMethodHints
     }
 
     up.indicator: Item {
@@ -92,19 +93,19 @@ T.SpinBox {
             x: 2; y: 4
             width: parent.width - 4
             height: parent.height - 8
-            color: !control.up.pressed ? "transparent" :
-                   control.activeFocus ? control.Universal.accent
-                                       : control.Universal.chromeDisabledLowColor
+            color: control.activeFocus ? control.Universal.accent :
+                   control.up.pressed ? control.Universal.baseMediumLowColor :
+                   control.up.hovered ? control.Universal.baseLowColor : "transparent"
+            visible: control.up.pressed || control.up.hovered
+            opacity: control.activeFocus && !control.up.pressed ? 0.4 : 1.0
         }
 
-        Image {
+        ColorImage {
             x: (parent.width - width) / 2
             y: (parent.height - height) / 2
-            source: "image://universal/" + (control.mirrored ? "left" : "right") + "arrow/"
-                    + (!enabled ? control.Universal.chromeDisabledLowColor :
-                                  control.activeFocus ? control.Universal.chromeBlackHighColor : control.Universal.baseHighColor)
-            sourceSize.width: width
-            sourceSize.height: height
+            color: !enabled ? control.Universal.chromeDisabledLowColor :
+                              control.activeFocus ? control.Universal.chromeBlackHighColor : control.Universal.baseHighColor
+            source: "qrc:/qt-project.org/imports/QtQuick/Controls.2/Universal/images/" + (control.mirrored ? "left" : "right") + "arrow.png"
         }
     }
 
@@ -118,19 +119,19 @@ T.SpinBox {
             x: 2; y: 4
             width: parent.width - 4
             height: parent.height - 8
-            color: !control.down.pressed ? "transparent" :
-                     control.activeFocus ? control.Universal.accent
-                                         : control.Universal.chromeDisabledLowColor
+            color: control.activeFocus ? control.Universal.accent :
+                   control.down.pressed ? control.Universal.baseMediumLowColor :
+                   control.down.hovered ? control.Universal.baseLowColor : "transparent"
+            visible: control.down.pressed || control.down.hovered
+            opacity: control.activeFocus && !control.down.pressed ? 0.4 : 1.0
         }
 
-        Image {
+        ColorImage {
             x: (parent.width - width) / 2
             y: (parent.height - height) / 2
-            source: "image://universal/" + (control.mirrored ? "right" : "left") + "arrow/"
-                    + (!enabled ? control.Universal.chromeDisabledLowColor :
-                                  control.activeFocus ? control.Universal.chromeBlackHighColor : control.Universal.baseHighColor)
-            sourceSize.width: width
-            sourceSize.height: height
+            color: !enabled ? control.Universal.chromeDisabledLowColor :
+                              control.activeFocus ? control.Universal.chromeBlackHighColor : control.Universal.baseHighColor
+            source: "qrc:/qt-project.org/imports/QtQuick/Controls.2/Universal/images/" + (control.mirrored ? "right" : "left") + "arrow.png"
         }
     }
 
@@ -140,7 +141,8 @@ T.SpinBox {
 
         border.width: 2 // TextControlBorderThemeThickness
         border.color: !control.enabled ? control.Universal.baseLowColor :
-                       control.activeFocus ? control.Universal.accent : control.Universal.chromeDisabledLowColor
+                       control.activeFocus ? control.Universal.accent :
+                       control.hovered ? control.Universal.baseMediumColor : control.Universal.chromeDisabledLowColor
         color: control.enabled ? control.Universal.background : control.Universal.baseLowColor
     }
 }

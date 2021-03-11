@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the Qt Quick Controls 2 module of the Qt Toolkit.
@@ -34,27 +34,29 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.6
-import QtQuick.Controls 2.0
-import QtQuick.Templates 2.0 as T
-import QtQuick.Controls.Material 2.0
-import QtQuick.Controls.Material.impl 2.0
+import QtQuick 2.12
+import QtQuick.Controls 2.12
+import QtQuick.Templates 2.12 as T
+import QtQuick.Controls.Material 2.12
+import QtQuick.Controls.Material.impl 2.12
+import QtQuick.Window 2.12
 
 T.Menu {
     id: control
 
     Material.elevation: 8
 
-    implicitWidth: Math.max(background ? background.implicitWidth : 0,
-                            contentItem ? contentItem.implicitWidth + leftPadding + rightPadding : 0)
-    implicitHeight: Math.max(background ? background.implicitHeight : 0,
-                             contentItem ? contentItem.implicitHeight : 0) + topPadding + bottomPadding
+    implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
+                            contentWidth + leftPadding + rightPadding)
+    implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
+                             contentHeight + topPadding + bottomPadding)
 
     margins: 0
-    topPadding: 8
-    bottomPadding: 8
+    verticalPadding: 8
 
-    transformOrigin: Item.Top
+    transformOrigin: !cascade ? Item.Top : (mirrored ? Item.TopRight : Item.TopLeft)
+
+    delegate: MenuItem { }
 
     enter: Transition {
         // grow_fade_in
@@ -72,18 +74,16 @@ T.Menu {
         implicitHeight: contentHeight
 
         model: control.contentModel
-        // TODO: improve this?
-        interactive: ApplicationWindow.window ? contentHeight > ApplicationWindow.window.height : false
+        interactive: Window.window ? contentHeight > Window.window.height : false
         clip: true
-        keyNavigationWraps: false
-        currentIndex: -1
+        currentIndex: control.currentIndex
 
         ScrollIndicator.vertical: ScrollIndicator {}
     }
 
     background: Rectangle {
         implicitWidth: 200
-        implicitHeight: 48
+        implicitHeight: control.Material.menuItemHeight
 
         radius: 3
         color: control.Material.dialogColor
@@ -92,5 +92,15 @@ T.Menu {
         layer.effect: ElevationEffect {
             elevation: control.Material.elevation
         }
+    }
+
+    T.Overlay.modal: Rectangle {
+        color: control.Material.backgroundDimColor
+        Behavior on opacity { NumberAnimation { duration: 150 } }
+    }
+
+    T.Overlay.modeless: Rectangle {
+        color: control.Material.backgroundDimColor
+        Behavior on opacity { NumberAnimation { duration: 150 } }
     }
 }

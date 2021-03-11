@@ -1,6 +1,6 @@
 #############################################################################
 ##
-## Copyright (C) 2015 Riverbank Computing Limited.
+## Copyright (C) 2017 Riverbank Computing Limited.
 ## Copyright (C) 2006 Thorsten Marek.
 ## All right reserved.
 ##
@@ -42,7 +42,7 @@ import logging
 import os.path
 import sys
 
-from .exceptions import UnsupportedPropertyError
+from .exceptions import NoSuchClassError, UnsupportedPropertyError
 from .icon_cache import IconCache
 
 if sys.hexversion >= 0x03000000:
@@ -112,7 +112,7 @@ class Properties(object):
 
         scope = self.factory.findQObjectType(prefix)
         if scope is None:
-            raise AttributeError("unknown enum %s" % cpp_name)
+            raise NoSuchClassError(prefix)
 
         return getattr(scope, membername)
 
@@ -131,7 +131,7 @@ class Properties(object):
     def _number(self, prop):
         return int(prop.text)
 
-    _uInt = _longLong = _uLongLong = _number
+    _UInt = _uInt = _longLong = _uLongLong = _number
 
     def _double(self, prop):
         return float(prop.text)
@@ -274,7 +274,7 @@ class Properties(object):
 
             gradient.setColorAt(position, color)
 
-        return name
+        return gradient
 
     def _palette(self, prop):
         palette = self.factory.createQObject("QPalette", "palette", (),

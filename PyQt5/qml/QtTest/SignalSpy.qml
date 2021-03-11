@@ -43,7 +43,7 @@ import QtTest 1.1
 /*!
     \qmltype SignalSpy
     \inqmlmodule QtTest
-    \brief Enables introspection of signal emission
+    \brief Enables introspection of signal emission.
     \since 4.8
     \ingroup qtquicktest
 
@@ -74,7 +74,7 @@ import QtTest 1.1
     synchronously.  For asynchronous signals, the wait() method can be
     used to block the test until the signal occurs (or a timeout expires).
 
-    \sa {QtTest::TestCase}{TestCase}, {Qt Quick Test Reference Documentation}
+    \sa {QtTest::TestCase}{TestCase}, {Qt Quick Test}
 */
 
 Item {
@@ -230,8 +230,14 @@ Item {
             qtest_prevSignalName = ""
         }
         if (target != null && signalName != "") {
-            var handlerName = qtest_signalHandlerName(signalName)
-            var func = target[handlerName]
+            // Look for the signal name in the object
+            var func = target[signalName]
+            if (typeof func !== "function") {
+                // If it is not a function, try looking for signal handler
+                // i.e. (onSignal) this is needed for cases where there is a property
+                // and a signal with the same name, e.g. Mousearea.pressed
+                func = target[qtest_signalHandlerName(signalName)]
+            }
             if (func === undefined) {
                 spy.qtest_valid = false
                 console.log("Signal '" + signalName + "' not found")

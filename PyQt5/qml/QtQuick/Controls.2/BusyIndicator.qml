@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the Qt Quick Controls 2 module of the Qt Toolkit.
@@ -34,32 +34,30 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.6
-import QtQuick.Controls 2.0
-import QtQuick.Controls.impl 2.0
-import QtQuick.Templates 2.0 as T
+import QtQuick 2.12
+import QtQuick.Controls 2.12
+import QtQuick.Controls.impl 2.12
+import QtQuick.Templates 2.12 as T
 
 T.BusyIndicator {
     id: control
 
-    implicitWidth: contentItem.implicitWidth + leftPadding + rightPadding
-    implicitHeight: contentItem.implicitHeight + topPadding + bottomPadding
+    implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
+                            implicitContentWidth + leftPadding + rightPadding)
+    implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
+                             implicitContentHeight + topPadding + bottomPadding)
 
     padding: 6
 
-    //! [contentItem]
-    contentItem: BusyRing {
-        id: ring
+    contentItem: BusyIndicatorImpl {
         implicitWidth: 48
         implicitHeight: 48
+
+        pen: control.palette.dark
+        fill: control.palette.dark
+
+        running: control.running
         opacity: control.running ? 1 : 0
-
         Behavior on opacity { OpacityAnimator { duration: 250 } }
-
-        BusyRingAnimator {
-            target: ring
-            running: control.visible && control.running
-        }
     }
-    //! [contentItem]
 }

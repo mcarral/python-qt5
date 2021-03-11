@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the Qt Quick Controls 2 module of the Qt Toolkit.
@@ -34,37 +34,28 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.6
-import QtQuick.Templates 2.0 as T
-import QtQuick.Controls.Material 2.0
-import QtQuick.Controls.Material.impl 2.0
+import QtQuick 2.12
+import QtQuick.Templates 2.12 as T
+import QtQuick.Controls.Material 2.12
+import QtQuick.Controls.Material.impl 2.12
 
 T.BusyIndicator {
     id: control
 
-    implicitWidth: contentItem.implicitWidth + leftPadding + rightPadding
-    implicitHeight: contentItem.implicitHeight + topPadding + bottomPadding
+    implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
+                            implicitContentWidth + leftPadding + rightPadding)
+    implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
+                             implicitContentHeight + topPadding + bottomPadding)
 
     padding: 6
 
-    contentItem: ProgressRing {
-        id: ring
-        x: control.leftPadding + (control.availableWidth - width) / 2
-        y: control.topPadding + (control.availableHeight - height) / 2
-        implicitWidth: 48
-        implicitHeight: 48
-        width: size
-        height: size
-        opacity: control.running ? 1 : 0
+    contentItem: BusyIndicatorImpl {
+        implicitWidth: control.Material.touchTarget
+        implicitHeight: control.Material.touchTarget
         color: control.Material.accentColor
 
-        readonly property real size: Math.min(control.availableWidth, control.availableHeight)
-
+        running: control.running
+        opacity: control.running ? 1 : 0
         Behavior on opacity { OpacityAnimator { duration: 250 } }
-
-        RingAnimator {
-            target: ring
-            running: control.visible && control.running
-        }
     }
 }

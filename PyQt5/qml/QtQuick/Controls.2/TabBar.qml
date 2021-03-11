@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the Qt Quick Controls 2 module of the Qt Toolkit.
@@ -34,24 +34,20 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.7
-import QtQuick.Templates 2.0 as T
+import QtQuick 2.12
+import QtQuick.Templates 2.12 as T
 
 T.TabBar {
     id: control
 
-    implicitWidth: Math.max(background ? background.implicitWidth : 0,
-                            contentItem.implicitWidth + leftPadding + rightPadding)
-    implicitHeight: Math.max(background ? background.implicitHeight : 0,
-                             contentItem.implicitHeight + topPadding + bottomPadding)
+    implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
+                            contentWidth + leftPadding + rightPadding)
+    implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
+                             contentHeight + topPadding + bottomPadding)
 
     spacing: 1
 
-    //! [contentItem]
     contentItem: ListView {
-        implicitWidth: contentWidth
-        implicitHeight: 40
-
         model: control.contentModel
         currentIndex: control.currentIndex
 
@@ -66,9 +62,8 @@ T.TabBar {
         preferredHighlightBegin: 40
         preferredHighlightEnd: width - 40
     }
-    //! [contentItem]
 
-    //! [background]
-    background: Rectangle { }
-    //! [background]
+    background: Rectangle {
+        color: control.palette.window
+    }
 }

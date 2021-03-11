@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the Qt Quick Controls 2 module of the Qt Toolkit.
@@ -34,32 +34,34 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.6
-import QtQuick.Templates 2.0 as T
-import QtQuick.Controls.Universal 2.0
+import QtQuick 2.12
+import QtQuick.Templates 2.12 as T
+import QtQuick.Controls.Universal 2.12
 
 T.ScrollBar {
     id: control
 
-    implicitWidth: Math.max(background ? background.implicitWidth : 0,
-                            contentItem.implicitWidth + leftPadding + rightPadding)
-    implicitHeight: Math.max(background ? background.implicitHeight : 0,
-                             contentItem.implicitHeight + topPadding + bottomPadding)
+    implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
+                            implicitContentWidth + leftPadding + rightPadding)
+    implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
+                             implicitContentHeight + topPadding + bottomPadding)
+
+    visible: control.policy !== T.ScrollBar.AlwaysOff
 
     // TODO: arrows
 
     contentItem: Rectangle {
-        implicitWidth: 12
-        implicitHeight: 12
+        implicitWidth: control.interactive ? 12 : 6
+        implicitHeight: control.interactive ? 12: 6
 
-        color: control.pressed ? control.Universal.baseMediumColor : control.Universal.chromeHighColor
-        visible: control.size < 1.0
+        color: control.pressed ? control.Universal.baseMediumColor :
+               control.interactive && control.hovered ? control.Universal.baseMediumLowColor : control.Universal.chromeHighColor
         opacity: 0.0
     }
 
     background: Rectangle {
-        implicitWidth: 12
-        implicitHeight: 12
+        implicitWidth: control.interactive ? 12 : 6
+        implicitHeight: control.interactive ? 12: 6
 
         color: control.Universal.chromeLowColor
         visible: control.size < 1.0
@@ -69,7 +71,7 @@ T.ScrollBar {
     states: [
         State {
             name: "active"
-            when: control.active
+            when: control.policy === T.ScrollBar.AlwaysOn || (control.active && control.size < 1.0)
         }
     ]
 
@@ -81,6 +83,7 @@ T.ScrollBar {
         Transition {
             from: "active"
             SequentialAnimation {
+                PropertyAction{ targets: [contentItem, background]; property: "opacity"; value: 1.0 }
                 PauseAnimation { duration: 3000 }
                 NumberAnimation { targets: [contentItem, background]; property: "opacity"; to: 0.0 }
             }

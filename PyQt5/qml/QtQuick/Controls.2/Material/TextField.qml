@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the Qt Quick Controls 2 module of the Qt Toolkit.
@@ -34,54 +34,34 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.6
-import QtQuick.Templates 2.0 as T
-import QtQuick.Controls.Material 2.0
+import QtQuick 2.12
+import QtQuick.Templates 2.12 as T
+import QtQuick.Controls 2.12
+import QtQuick.Controls.impl 2.12
+import QtQuick.Controls.Material 2.12
+import QtQuick.Controls.Material.impl 2.12
 
 T.TextField {
     id: control
 
-    implicitWidth: Math.max(background ? background.implicitWidth : 0,
-                            placeholderText ? placeholder.implicitWidth + leftPadding + rightPadding : 0)
-                            || contentWidth + leftPadding + rightPadding
-    implicitHeight: Math.max(contentHeight + topPadding + bottomPadding,
-                             background ? background.implicitHeight : 0,
+    implicitWidth: implicitBackgroundWidth + leftInset + rightInset
+                   || Math.max(contentWidth, placeholder.implicitWidth) + leftPadding + rightPadding
+    implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
+                             contentHeight + topPadding + bottomPadding,
                              placeholder.implicitHeight + topPadding + bottomPadding)
 
     topPadding: 8
     bottomPadding: 16
 
-    color: enabled ? Material.primaryTextColor : Material.hintTextColor
+    color: enabled ? Material.foreground : Material.hintTextColor
     selectionColor: Material.accentColor
     selectedTextColor: Material.primaryHighlightedTextColor
+    placeholderTextColor: Material.hintTextColor
     verticalAlignment: TextInput.AlignVCenter
-    cursorDelegate: Rectangle {
-        id: cursor
-        color: control.Material.accentColor
-        width: 2
-        visible: control.activeFocus && control.selectionStart === control.selectionEnd
 
-        Connections {
-            target: control
-            onCursorPositionChanged: {
-                // keep a moving cursor visible
-                cursor.opacity = 1
-                timer.restart()
-            }
-        }
+    cursorDelegate: CursorDelegate { }
 
-        Timer {
-            id: timer
-            running: control.activeFocus
-            repeat: true
-            interval: Qt.styleHints.cursorFlashTime / 2
-            onTriggered: cursor.opacity = !cursor.opacity ? 1 : 0
-            // force the cursor visible when gaining focus
-            onRunningChanged: cursor.opacity = 1
-        }
-    }
-
-    Text {
+    PlaceholderText {
         id: placeholder
         x: control.leftPadding
         y: control.topPadding
@@ -89,18 +69,18 @@ T.TextField {
         height: control.height - (control.topPadding + control.bottomPadding)
         text: control.placeholderText
         font: control.font
-        color: control.Material.hintTextColor
-        horizontalAlignment: control.horizontalAlignment
+        color: control.placeholderTextColor
         verticalAlignment: control.verticalAlignment
         elide: Text.ElideRight
+        renderType: control.renderType
         visible: !control.length && !control.preeditText && (!control.activeFocus || control.horizontalAlignment !== Qt.AlignHCenter)
-
     }
 
     background: Rectangle {
-        y: control.height - height - control.bottomPadding / 2
+        y: control.height - height - control.bottomPadding + 8
         implicitWidth: 120
-        height: control.activeFocus ? 2 : 1
-        color: control.activeFocus ? control.Material.accentColor : control.Material.hintTextColor
+        height: control.activeFocus || control.hovered ? 2 : 1
+        color: control.activeFocus ? control.Material.accentColor
+                                   : (control.hovered ? control.Material.primaryTextColor : control.Material.hintTextColor)
     }
 }

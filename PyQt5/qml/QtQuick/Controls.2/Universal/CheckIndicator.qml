@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the Qt Quick Controls 2 module of the Qt Toolkit.
@@ -34,16 +34,18 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.6
-import QtQuick.Templates 2.0 as T
-import QtQuick.Controls.Universal 2.0
+import QtQuick 2.12
+import QtQuick.Templates 2.12 as T
+import QtQuick.Controls 2.12
+import QtQuick.Controls.impl 2.12
+import QtQuick.Controls.Universal 2.12
 
 Rectangle {
     implicitWidth: 20
     implicitHeight: 20
 
     color: !control.enabled ? "transparent" :
-            control.down && control.checkState !== Qt.PartiallyChecked ? control.Universal.baseMediumColor :
+            control.down && !partiallyChecked ? control.Universal.baseMediumColor :
             control.checkState === Qt.Checked ? control.Universal.accent : "transparent"
     border.color: !control.enabled ? control.Universal.baseLowColor :
                    control.down ? control.Universal.baseMediumColor :
@@ -51,25 +53,29 @@ Rectangle {
     border.width: 2 // CheckBoxBorderThemeThickness
 
     property Item control
+    readonly property bool partiallyChecked: control.checkState === Qt.PartiallyChecked
 
-    Image {
+    ColorImage {
         x: (parent.width - width) / 2
         y: (parent.height - height) / 2
 
         visible: control.checkState === Qt.Checked
-        source: "image://universal/checkmark/" + (!control.enabled ? control.Universal.baseLowColor : control.Universal.chromeWhiteColor)
-        sourceSize.width: width
-        sourceSize.height: height
+        color: !control.enabled ? control.Universal.baseLowColor : control.Universal.chromeWhiteColor
+        source: "qrc:/qt-project.org/imports/QtQuick/Controls.2/Universal/images/checkmark.png"
     }
 
     Rectangle {
         x: (parent.width - width) / 2
         y: (parent.height - height) / 2
-        width: parent.width / 2
-        height: parent.height / 2
+        width: partiallyChecked ? parent.width / 2 : parent.width
+        height: partiallyChecked ? parent.height / 2 : parent.height
 
-        visible: control.checkState === Qt.PartiallyChecked
-        color: !control.enabled ? control.Universal.baseLowColor :
-                control.down ? control.Universal.baseMediumColor : control.Universal.baseMediumHighColor
+        visible: !control.pressed && control.hovered || partiallyChecked
+        color: !partiallyChecked ? "transparent" :
+               !control.enabled ? control.Universal.baseLowColor :
+                control.down ? control.Universal.baseMediumColor :
+                control.hovered ? control.Universal.baseHighColor : control.Universal.baseMediumHighColor
+        border.width: partiallyChecked ? 0 : 2 // CheckBoxBorderThemeThickness
+        border.color: control.Universal.baseMediumLowColor
     }
 }
