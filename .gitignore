@@ -2,3 +2,7 @@
 dist
 *.pyc
 build
+.idea
+src/*
+!src/*.zip
+!src/*.tar.gz
