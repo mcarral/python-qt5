@@ -39,7 +39,7 @@ def get_package_data():
     package_data['PyQt5'] = list()
     for subdir in ("doc/", "examples/", "include/",
                    "mkspecs/", "plugins/", "qml/",
-                   "qsci/", "sip/", "translations/", "uic/"):
+                   "qsci/", "sip/", "translations/", "resources/", "uic/"):
         abspath = os.path.abspath("PyQt5/" + subdir)
         for root, dirs, files in os.walk(abspath):
             for f in files:
